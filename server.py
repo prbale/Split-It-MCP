@@ -45,15 +45,22 @@ DATA_FILE = Path(__file__).with_name("expenses.json")
 
 
 def load() -> list[dict]:
+    """Read expenses from the JSON file, or return an empty list if it doesn't exist yet."""
     return json.loads(DATA_FILE.read_text()) if DATA_FILE.exists() else []
 
 
 def save(expenses: list[dict]) -> None:
+    """Write expenses to the JSON file in a readable, indented format."""
     DATA_FILE.write_text(json.dumps(expenses, indent=2))
 
 
 def balances(expenses: list[dict]) -> dict[str, float]:
-    """Positive = this person should receive money. Negative = this person owes money."""
+    """Calculate each person's net balance across all expenses.
+
+    Each payer is credited with the full amount, then each participant is charged
+    an equal share. Positive means the person should receive money; negative means
+    the person owes money.
+    """
     result: dict[str, float] = {}
     for e in expenses:
         share = e["amount"] / len(e["split_between"])
